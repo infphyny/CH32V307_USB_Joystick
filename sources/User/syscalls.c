@@ -31,9 +31,16 @@
 #include <sys/time.h>
 #include <sys/times.h>
 
+#include <rtthread.h>
+#include <rthw.h>
+
+#define STDIN_FILENO  0
+#define STDOUT_FILENO 1
+#define STDERR_FILENO 2
+
 extern int errno;
-extern int __io_putchar(int ch) __attribute__((weak));
-extern int __io_getchar(void) __attribute__((weak));
+//extern int __io_putchar(int ch) __attribute__((weak));
+//extern int __io_getchar(void) __attribute__((weak));
 
 int _close(int file)
 {
@@ -41,7 +48,7 @@ int _close(int file)
 }
 int _fstat(int file, struct stat *st)
 {
-	st->st_mode = S_IFCHR;
+
 	return 0;
 }
 
@@ -57,14 +64,20 @@ int _lseek(int file, int ptr, int dir)
 
 __attribute__((weak)) int _read(int file, char *ptr, int len)
 {
-	int DataIdx;
+	if (file == STDIN_FILENO) {
 
-	for (DataIdx = 0; DataIdx < len; DataIdx++)
-	{
-		*ptr++ = __io_getchar();
+  //    rt_kprintf("_read called \n");
+			return len;
 	}
+	// int DataIdx;
+	//
+	// for (DataIdx = 0; DataIdx < len; DataIdx++)
+	// {
+	//
+	// 	//*ptr++ = __io_getchar();
+	// }
 
-return len;
+return -1;
 }
 __attribute__((weak)) int _write(int file, char *ptr, int len)
 {
@@ -72,7 +85,7 @@ __attribute__((weak)) int _write(int file, char *ptr, int len)
 
 	for (DataIdx = 0; DataIdx < len; DataIdx++)
 	{
-		__io_putchar(*ptr++);
+		//__io_putchar(*ptr++);
 	}
 	return len;
 }
